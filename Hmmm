@@ -17,8 +17,13 @@ local Tab3 = Window:MakeTab({
 local player = game.Players.LocalPlayer
 local teleporting = false
 local farmingFlowers = false
-local selectedWeapon = "Diamond Hammer"
+local selectedWeaponSlot = 1
 local selectedMob = nil
+local selectedTool = "Diamond Pickaxe"
+local tools = {
+    "Diamond Pickaxe",
+    "Ginger Pickaxe"
+}
 local plantPartNames = {"Poppy", "Meshes/Flower_Poppy_Flower", "Spots", "Flower"}
 local maxIndex = 74
 local indices = {}
@@ -74,6 +79,45 @@ local function teleportToPlant()
     end
 end
 
+local function damageIndicesInBatches(batchSize, delayBetweenBatches)
+    local damageValues = {
+        ["Diamond Pickaxe"] = 256,
+        ["Ginger Pickaxe"] = 275
+    }
+
+    spawn(function()
+        local batch = {}
+        for i, index in ipairs(indices) do
+            table.insert(batch, index)
+            if #batch >= batchSize or i == #indices then
+                for _, batchIndex in ipairs(batch) do
+                    local args = {
+                        [1] = damageValues[selectedTool],
+                        [2] = {
+                            ["Level"] = 9,
+                            ["Index"] = batchIndex,
+                            ["World"] = "Mines"
+                        }
+                    }
+                    pcall(function()
+                        game:GetService("ReplicatedStorage").Packages.Knit.Services.BlockService.RF.DamageBlock:InvokeServer(unpack(args))
+                    end)
+                end
+                batch = {}
+                wait(delayBetweenBatches)
+            end
+        end
+    end)
+end
+
+local function farmPlants()
+    spawn(teleportToPlant)
+    while farmingFlowers do
+        damageIndicesInBatches(9, 0.05)
+        wait(0.1)
+    end
+end
+
 local function teleportToSelectedMob()
     local partName = getPartName(selectedMob)
     if not partName then return end
@@ -107,16 +151,22 @@ local function attackMobs()
         local mobsFolder = game.Workspace:FindFirstChild("Mobs")
         if not mobsFolder then return end
 
+        local args = {
+            [1] = selectedWeaponSlot,
+            [2] = {},
+            [3] = false
+        }
+
         for _, mob in pairs(mobsFolder:GetChildren()) do
             if mob:IsA("Model") and mob:FindFirstChild(partName) then
-                local args = {
-                    [1] = selectedWeapon,
-                    [2] = {mob:GetAttribute("UUID") or mob.Name},
-                    [3] = true
-                }
-                game:GetService("ReplicatedStorage").Packages.Knit.Services.MobService.RF.AttackMobs:InvokeServer(unpack(args))
+                table.insert(args[2], mob:GetAttribute("UUID") or mob.Name)
             end
         end
+
+        if #args[2] > 0 then
+            game:GetService("ReplicatedStorage").Packages.Knit.Services.MobService.RF.AttackMobs:InvokeServer(unpack(args))
+        end
+
         wait(0.05)
     end
 end
@@ -127,15 +177,6 @@ Tab2:AddDropdown({
     Options = {"Slime", "Gizmos", "Scatters", "Muchers", "Flamelet", "Spiders", "Grimthorn", "Arachnella"},
     Callback = function(Value)
         selectedMob = Value
-    end    
-})
-
-Tab2:AddDropdown({
-    Name = "Seleccionar Arma",
-    Default = "Diamond Hammer",
-    Options = {"Diamond Hammer", "Frostbite Sword", "Wood Sword", "Twilight Sword"},
-    Callback = function(Value)
-        selectedWeapon = Value
     end    
 })
 
@@ -151,13 +192,22 @@ Tab2:AddToggle({
     end    
 })
 
+Tab3:AddDropdown({
+    Name = "Seleccionar Herramienta",
+    Default = "Diamond Pickaxe",
+    Options = tools,
+    Callback = function(Value)
+        selectedTool = Value
+    end    
+})
+
 Tab3:AddToggle({
     Name = "Flower Farm",
     Default = false,
     Callback = function(Value)
         farmingFlowers = Value
         if farmingFlowers then
-            spawn(teleportToPlant)
+            spawn(farmPlants)
         end
     end
 })
