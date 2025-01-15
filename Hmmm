@@ -22,7 +22,8 @@ local selectedMob = nil
 local selectedTool = "Diamond Pickaxe"
 local tools = {
     "Diamond Pickaxe",
-    "Ginger Pickaxe"
+    "Ginger Pickaxe",
+    "Ginger Sharp"
 }
 local plantPartNames = {"Poppy", "Meshes/Flower_Poppy_Flower", "Spots", "Flower"}
 local maxIndex = 74
@@ -82,7 +83,8 @@ end
 local function damageIndicesInBatches(batchSize, delayBetweenBatches)
     local damageValues = {
         ["Diamond Pickaxe"] = 256,
-        ["Ginger Pickaxe"] = 275
+        ["Ginger Pickaxe"] = 275,
+        ["Ginger Sharp"] = 330
     }
 
     spawn(function()
