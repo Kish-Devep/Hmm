@@ -1,6 +1,6 @@
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/Jext1/HIGHRealms/refs/heads/main/HighRelamsOrion.lua')))()
 
-local Window = OrionLib:MakeWindow({Name = "Rekt", HidePremium = false, SaveConfig = false, ConfigFolder = "OrionTest", IntroEnabled = false})
+local Window = OrionLib:MakeWindow({Name = "REKTIC", HidePremium = false, SaveConfig = false, ConfigFolder = "OrionTest", IntroEnabled = false})
 
 local Tab2 = Window:MakeTab({
     Name = "Mob Farm",
@@ -25,7 +25,7 @@ local tools = {
     "Ginger Pickaxe",
     "Ginger Sharp"
 }
-local plantPartNames = {"Poppy", "Meshes/Flower_Poppy_Flower", "Spots", "Flower"}
+local plantPartNames = {"Poppy", "Meshes/Flower_Poppy_Flower", "Spots", "Flower", "Meshes/Cherry_Blossom_Tree_Plant", "Cherry_Blossom_Tree_Plant"}
 local maxIndex = 74
 local indices = {}
 
